@@ -1,6 +1,12 @@
 # Gophersnake
 
-Gophersnake is a stand-alone Gopher client for modern desktops, written in Python and TkInter. As of 2016-08-21, it's still at a very early stage (even searches don't work yet), but it's coming along.
+Gophersnake is a stand-alone Gopher client for modern desktops, written in Python and TkInter. As of 2016-08-22, it's still at a very early stage (even searches don't work yet), but it's coming along.
+
+## Wait, what's Gopher?
+
+To oversimplify, Gopher was a precursor of the Web, that fell by the wayside for various reasons. Nowadays considered obsolete, it's kept alive by a handful of fans, not just out of nostalgia but also its genuine qualities.
+
+Gopher is much simpler than the Web. It uses less bandwidth, processing power and screen space. It's still largely text-based, so you won't have to deal with annoying ads (or any kind of script for that matter). Gopher is limited, but what it can do, it does quickly, cleanly and with no fuss. And Gophersnake can help introduce you to this world.
 
 ## Install and run
 
@@ -15,3 +21,8 @@ There's no error checking yet, and testing has been limited at best, but it seem
 ## Roadmap
 
 See the disabled buttons and menu options.
+
+## Similar software
+
+https://github.com/avysk/suck-o-rama
+
