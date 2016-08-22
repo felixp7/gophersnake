@@ -1,4 +1,26 @@
 #!/usr/bin/python3
+# coding=utf-8
+#
+# Gophersnake -- stand-alone Gopher client for modern desktops
+# 2016-08-22 Felix Pleșoianu <http://felix.plesoianu.ro/>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 
 from __future__ import print_function
 
@@ -188,7 +210,8 @@ main_menu.add_command(
 
 menu_button = ttk.Menubutton(
 	toolbar, text="Menu", menu=main_menu)
-menu_icon = PhotoImage(file="menu-icon.gif")
+#menu_icon = PhotoImage(file="menu-icon.gif")
+menu_icon = PhotoImage(data=icon_data["Menu"])
 menu_button["image"] = menu_icon
 menu_button.pack(side=LEFT)
 
@@ -202,12 +225,14 @@ viewport.column("type", width=48, minwidth=48)
 viewport.column("label", width=720)
 viewport.grid(row=0, column=0, sticky=(N, S, E, W))
 viewport.heading("type", anchor="e")
-viewport.tag_configure("0", foreground="blue")
-viewport.tag_configure("1", foreground="blue")
+viewport.tag_configure("0", foreground="blue", font="TkFixedFont")
+viewport.tag_configure("1", foreground="blue", font="TkFixedFont")
 viewport.tag_configure("3", foreground="red")
-viewport.tag_configure("7", foreground="blue")
-viewport.tag_configure("g", foreground="blue")
-viewport.tag_configure("h", foreground="blue")
+viewport.tag_configure("5", font="TkFixedFont")
+viewport.tag_configure("7", foreground="blue", font="TkFixedFont")
+viewport.tag_configure("9", font="TkFixedFont")
+viewport.tag_configure("g", foreground="blue", font="TkFixedFont")
+viewport.tag_configure("h", foreground="blue", font="TkFixedFont")
 viewport.tag_configure("i", font="TkFixedFont")
 
 scroll = ttk.Scrollbar(
