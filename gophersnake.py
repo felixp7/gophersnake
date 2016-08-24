@@ -2,7 +2,7 @@
 # coding=utf-8
 #
 # Gophersnake -- stand-alone Gopher client for modern desktops
-# 2016-08-22 Felix Pleșoianu <http://felix.plesoianu.ro/>
+# Copyright 2016 Felix Pleșoianu <http://felix.plesoianu.ro/>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -33,13 +33,18 @@ if sys.version_info.major >= 3:
 	
 	from tkinter import *
 	from tkinter import ttk
-	from tkinter import messagebox
+	from tkinter.messagebox import showinfo, showerror
 else:
 	from urlparse import urlparse
 	
 	from Tkinter import *
-	import tkMessageBox
+	from tkMessageBox import showinfo, showerror
 	import ttk
+
+about = """Gophersnake version 2016-08-24, running on Python %d.%d.%d
+Created by Felix Pleşoianu and offered under the MIT License.
+See the source code for full text.""" % (
+	sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
 
 entry_types = {"0": "[TXT]", "1": "[DIR]", "2": "[CSO]", "3": "[ERR]",
 	"4": "[HEX]", "5": "[ARC]", "6": "[ENC]", "7": "[QRY]",
@@ -79,10 +84,10 @@ AAImhI+py+0Po5yh2ouz3rz7D2LTSJbmOVnqyrbuC8fy7KL2jecJDRcAOw==
 
 home_dir = [('i', 'Welcome to Gophersnake, a simple client for the Gopher protocol.', 'fake', '(NULL)', '0'),
 	('i', 'Here are some good starting points for surfing Gopherspace:', 'fake', '(NULL)', '0'),
-	('1', 'gopher.quux.org', '', 'gopher.quux.org', '70'),
-	('i', '(gopher.quux.org is sort of an Internet archival server)', 'fake', '(NULL)', '0'),
 	('1', 'gopher.floodgap.com', '', 'gopher.floodgap.com', '70'),
 	('i', '(Gopher software, advocacy, search engine.)', 'fake', '(NULL)', '0'),
+	('1', 'gopher.quux.org', '', 'gopher.quux.org', '70'),
+	('i', '(gopher.quux.org is sort of an Internet archival server)', 'fake', '(NULL)', '0'),
 	('1', 'The Online Book Initiative', '', 'gopher.std.com', '70'),
 	('i', '(A huge archive of freely redistributable texts.)', 'fake', '(NULL)', '0'),
 	('1', 'SDF Public Access UNIX System', '', 'sdf.org', '70'),
@@ -91,14 +96,11 @@ home_dir = [('i', 'Welcome to Gophersnake, a simple client for the Gopher protoc
 	('i', '(European branch of the same)', 'fake', '(NULL)', '0'),
 	('1', 'The Interactive Fiction Archive', '/if-archive', 'gopher.feedle.net', '70'),
 	('i', '--------', 'fake', '(NULL)', '0'),
-	('i', 'Gophersnake version 2016-08-17 beta by Felix Plesoianu', 'fake', '(NULL)', '0'),
-	('h', "Author's website", 'URL:http://felix.plesoianu.ro/', '(NULL)', '0'),
-	('i', 'This software is open source under the MIT license.', 'fake', '(NULL)', '0'),
-	('h', 'License text at www.opensource.org', 'URL:http://opensource.org/licenses/mit-license.php', '(NULL)', '0'),
-	('i', 'Credits', 'fake', '(NULL)', '0'),
-	('h', 'Chipmunk icon by Nicu Buculei', 'URL:http://www.openclipart.org/detail/14486', '(NULL)', '0'),
-	('i', 'Trivia', 'fake', '(NULL)', '0'),
-	('h', 'Wikipedia page on gophersnakes', 'URL:http://en.wikipedia.org/wiki/Gophersnake', '(NULL)', '0')]
+	('h', 'Gophersnake on GitHub', 'URL:https://github.com/felixplesoianu/gophersnake', '(NULL)', '0'),
+	('i', 'Feel free to open an issue.', 'fake', '(NULL)', '0'),
+	('h', 'Wikipedia page on gophersnakes', 'URL:http://en.wikipedia.org/wiki/Gophersnake', '(NULL)', '0'),
+	('i', "(Yes, it's a real animal.)", 'fake', '(NULL)', '0'),
+	('h', 'Chipmunk icon by Nicu Buculei', 'URL:http://www.openclipart.org/detail/14486', '(NULL)', '0')]
 
 raw_data = b""
 location = ""
@@ -162,7 +164,7 @@ toolbar.pack(side=TOP, fill="x", padx=4, pady=4)
 icons = {}
 
 buttons1 = [("Back", "back-icon.gif"),
-	("Forward", "forward-icon.gif"),
+	#("Forward", "forward-icon.gif"),
 	("Home", "home-icon.gif")]
 buttons2 = [("Reload", "reload-icon.gif"),
 	("Bookmark", "bookmark-icon.gif")]
@@ -190,11 +192,12 @@ address_bar.pack(
 add_buttons(buttons2)
 
 main_menu = Menu(top, tearoff=0)
-main_menu.add_command(label="About...", underline=0, state="disabled")
+main_menu.add_command(label="About...", underline=0,
+	command=lambda:show_about())
 main_menu.add_separator()
-main_menu.add_command(
-	label="Open file...", underline=0, accelerator="Ctrl-O",
-	state="disabled")
+#main_menu.add_command(
+#	label="Open file...", underline=0, accelerator="Ctrl-O",
+#	state="disabled")
 main_menu.add_command(
 	label="View source...", underline=0, accelerator="Ctrl-U",
 	command=lambda: open_text_viewer(location, raw_data.decode()))
@@ -257,7 +260,7 @@ top.bind("<Control-u>",
 top.bind("<Control-q>", lambda e: top.destroy())
 
 all_buttons["Back"]["state"] = "disabled"
-all_buttons["Forward"]["state"] = "disabled"
+#all_buttons["Forward"]["state"] = "disabled"
 all_buttons["Home"]["command"] = lambda: go_home()
 
 address_bar.bind("<Return>", lambda e: handle_command(address.get()))
@@ -272,24 +275,25 @@ viewport.bind("<Double-1>", lambda e: handle_entry(selection2entry()))
 def handle_entry(entry):
 	global location
 	if entry[0] == "0":
-		load_with_status(entry[2], entry[3], int(entry[4]))
-		open_text_viewer(entry2url(entry), raw_data.decode())
+		if load_with_status(entry[2], entry[3], int(entry[4])):
+			open_text_viewer(entry2url(entry), raw_data.decode())
 	elif entry[0] == "1":
-		load_with_status(entry[2], entry[3], int(entry[4]))
-		#dir_entries.clear()
-		del dir_entries[:]
-		for i in raw_data.decode().split("\r\n"):
-			e = str2entry(i)
-			if e != None:
-				dir_entries.append(e)
-		location = entry2url(entry)
-		refresh_display()
+		if load_with_status(entry[2], entry[3], int(entry[4])):
+			del dir_entries[:] #dir_entries.clear()
+			for i in raw_data.decode().split("\r\n"):
+				e = str2entry(i)
+				if e != None:
+					dir_entries.append(e)
+			location = entry2url(entry)
+			refresh_display()
 	elif entry[0] == "7":
-		messagebox.showinfo(
+		showinfo(
+			parent=top,
 			title="Gophersnake says:",
 			message="Search not yet implemented.")
 	elif entry[0] == "g":
-		messagebox.showinfo(
+		showinfo(
+			parent=top,
 			title="Gophersnake says:",
 			message="GIF files not yet supported.")
 	elif entry[0] == "h":
@@ -329,14 +333,17 @@ def update_status():
 		statusbar["text"] = entry2url(entry)
 
 def load_with_status(selector, host, port):
-	for i in fetch_data(selector, host, port):
-		if i:
-			statusbar["text"] = (
-				"Fetched " + str(len(raw_data)) + " bytes")
-		else:
-			statusbar["text"] = (
-				str(len(raw_data)) + " bytes loaded")
-			break
+	try:
+		for i in fetch_data(selector, host, port):
+			statusbar["text"] = str(
+				len(raw_data)) + " bytes loaded"
+		return True
+	except Exception as e:
+		showerror(
+			parent=top,
+			title="Error loading content",
+			message=str(e))
+		return False
 
 def show_entries(entries):
 	viewport.delete(*viewport.get_children())
@@ -401,6 +408,12 @@ def open_text_viewer(url, text):
 
 	window.rowconfigure(0, weight=1)
 	window.columnconfigure(0, weight=1)
+
+def show_about():
+	showinfo(
+		parent=top,
+		title="About Gophersnake",
+		message=about)
 
 go_home()
 
