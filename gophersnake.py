@@ -34,12 +34,14 @@ if sys.version_info.major >= 3:
 	from tkinter import *
 	from tkinter import ttk
 	from tkinter.messagebox import showinfo, showerror
+	from tkinter.filedialog import askopenfilename, asksaveasfilename
 else:
 	from urlparse import urlparse
 	
 	from Tkinter import *
-	from tkMessageBox import showinfo, showerror
 	import ttk
+	from tkMessageBox import showinfo, showerror
+	from tkFileDialog import askopenfilename, asksaveasfilename
 
 about = """Gophersnake version 2016-08-24, running on Python %d.%d.%d
 Created by Felix Pleşoianu and offered under the MIT License.
@@ -100,7 +102,7 @@ home_dir = [('i', 'Welcome to Gophersnake, a simple client for the Gopher protoc
 	('i', 'Feel free to open an issue.', 'fake', '(NULL)', '0'),
 	('h', 'Wikipedia page on gophersnakes', 'URL:http://en.wikipedia.org/wiki/Gophersnake', '(NULL)', '0'),
 	('i', "(Yes, it's a real animal.)", 'fake', '(NULL)', '0'),
-	('h', 'Chipmunk icon by Nicu Buculei', 'URL:http://www.openclipart.org/detail/14486', '(NULL)', '0')]
+	('h', "Author's website", 'URL:http://felix.plesoianu.ro/', '(NULL)', '0')]
 
 raw_data = b""
 location = ""
@@ -136,6 +138,11 @@ def parse_file(filename):
 	with open(filename, "r") as f:
 		for i in f:
 			yield (i[0],) + tuple(i[1:].rstrip().split("\t"))
+
+def write_to_file(filename, entries):
+	with open(filename, "w", newline="\r\n") as f:
+		for i in entries:
+			print("%s%s\t%s\t%s\t%s" % i, file=f)
 
 def fetch_data(selector, host, port):
 	global raw_data
@@ -195,15 +202,15 @@ main_menu = Menu(top, tearoff=0)
 main_menu.add_command(label="About...", underline=0,
 	command=lambda:show_about())
 main_menu.add_separator()
-#main_menu.add_command(
-#	label="Open file...", underline=0, accelerator="Ctrl-O",
-#	state="disabled")
+main_menu.add_command(
+	label="Open as page...", underline=0, accelerator="Ctrl-O",
+	command=lambda: open_as_directory())
 main_menu.add_command(
 	label="View source...", underline=0, accelerator="Ctrl-U",
 	command=lambda: open_text_viewer(location, raw_data.decode()))
 main_menu.add_command(
 	label="Save page as...", underline=0, accelerator="Ctrl-S",
-	state="disabled")
+	command=lambda: save_directory_as())
 main_menu.add_separator()
 main_menu.add_command(label="History", underline=0, state="disabled")
 main_menu.add_command(label="Bookmarks", underline=0, state="disabled")
@@ -255,8 +262,10 @@ main_pane.columnconfigure(0, weight=1)
 top.bind("<Control-l>", lambda e: address_bar.focus())
 top.bind("<Control-r>", lambda e: handle_command(location))
 top.bind("<F5>", lambda e: handle_command(location))
+top.bind("<Control-o>", lambda e: open_as_directory())
 top.bind("<Control-u>",
 	lambda e: open_text_viewer(location, raw_data.decode()))
+top.bind("<Control-s>", lambda e: save_directory_as())
 top.bind("<Control-q>", lambda e: top.destroy())
 
 all_buttons["Back"]["state"] = "disabled"
@@ -415,6 +424,35 @@ def show_about():
 		title="About Gophersnake",
 		message=about)
 
+def open_as_directory():
+	global location
+	fn = askopenfilename(parent=top, title="Open as directory")
+	if fn == "":
+		return
+	try:
+		del dir_entries[:]
+		for i in parse_file(fn):
+			dir_entries.append(i)
+		location = "file://" + fn.replace("\\", "/")
+		refresh_display()
+	except Exception as e:
+		showerror(
+			parent=top,
+			title="Error opening directory",
+			message=str(e))
+
+def save_directory_as():
+	fn = asksaveasfilename(parent=top, title="Save directory as")
+	if fn == "":
+		return
+	try:
+		write_to_file(fn, dir_entries)
+	except Exception as e:
+		showerror(
+			parent=top,
+			title="Error saving directory",
+			message=str(e))
+	
 go_home()
 
 top.mainloop()

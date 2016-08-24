@@ -16,4 +16,4 @@ hGophersnake on GitHub	URL:https://github.com/felixplesoianu/gophersnake	(NULL)	
 iFeel free to open an issue.	fake	(NULL)	0
 hWikipedia page on gophersnakes	URL:http://en.wikipedia.org/wiki/Gophersnake	(NULL)	0
 i(Yes, it's a real animal.)	fake	(NULL)	0
-hChipmunk icon by Nicu Buculei	URL:http://www.openclipart.org/detail/14486	(NULL)	0
+hAuthor's website	URL:http://felix.plesoianu.ro/	(NULL)	0
