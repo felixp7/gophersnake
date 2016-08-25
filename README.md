@@ -1,6 +1,6 @@
 # Gophersnake
 
-Gophersnake is a stand-alone Gopher client for modern desktops, written in Python and TkInter. As of 2016-08-24, it's still at a very early stage (even searches don't work yet), but it's coming along.
+Gophersnake is a stand-alone Gopher client for modern desktops, written in Python and TkInter. As of 2016-08-25, it's still at an early stage, but it's coming along.
 
 ## Wait, what's Gopher?
 
@@ -18,15 +18,28 @@ Just download `gophersnake.py`, it's a self-contained script. To run it, you nee
 
 Click on links to see where they lead; double-click to navigate. The up/down/enter keys work as well, but you might have to click in the viewport first.
 
-## Compatibility and bugs
-
 Gophersnake is being developed on Python 3. For now it's still compatible with 2.7, but that could change at any time.
 
-Error checking is minimal, and testing has been limited at best, but it seems to work for most directories and text files.
+## Features
 
-## Roadmap
+- Useful home screen.
+- Works on any port.
+- Text files open in their own windows.
+- Can save directories to a file and load them from disk again (useful for testing).
+- "View source" function.
 
-See the disabled buttons and menu options.
+## Known bugs
+
+- Error checking is minimal.
+- The loading progress isn't showing, so the program just seems to freeze.
+- Gopher URLs aren't fully handled.
+
+## To do
+
+- History
+- Bookmarks
+- Binary file downloads
+- GIF file display
 
 ## Similar software
 
