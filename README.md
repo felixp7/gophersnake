@@ -16,12 +16,14 @@ Because the Internet is turning into a web-based monoculture, and every monocult
 
 Just download `gophersnake.py`, it's a self-contained script. To run it, you need Python and Tkinter. Both should be installed by default on Linux and Mac; for Windows, just download an official installer from www.python.org.
 
-Click on links to see where they lead; double-click to navigate. The up/down/enter keys work as well, but you might have to click in the viewport first.
+Click on links to see where they lead; double-click to navigate. The up/down/enter keys work as well.
 
 Gophersnake is being developed on Python 3. For now it's still compatible with 2.7, but that could change at any time.
 
 ## Features
 
+- Single-file app, just download and run.
+- Modern, familiar GUI.
 - Useful home screen.
 - Works on any port.
 - Text files open in their own windows.
@@ -30,9 +32,8 @@ Gophersnake is being developed on Python 3. For now it's still compatible with 2
 
 ## Known bugs
 
-- Error checking is minimal.
 - The loading progress isn't showing, so the program just seems to freeze.
-- Gopher URLs aren't fully handled.
+- Directory entries that cut off early aren't rendered.
 
 ## To do
 
@@ -44,4 +45,3 @@ Gophersnake is being developed on Python 3. For now it's still compatible with 2
 ## Similar software
 
 https://github.com/avysk/suck-o-rama
-
