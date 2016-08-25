@@ -45,7 +45,7 @@ else:
 	from tkMessageBox import showinfo, showerror
 	from tkFileDialog import askopenfilename, asksaveasfilename
 
-about = """Gophersnake version 2016-08-24, running on Python %d.%d.%d
+about = """Gophersnake version 2016-08-25, running on Python %d.%d.%d
 Created by Felix Pleşoianu and offered under the MIT License.
 See the source code for full text.""" % (
 	sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
@@ -216,7 +216,8 @@ main_menu.add_command(
 	command=lambda: open_as_directory())
 main_menu.add_command(
 	label="View source...", underline=0, accelerator="Ctrl-U",
-	command=lambda: open_text_viewer(location, raw_data.decode()))
+	command=lambda: open_text_viewer(
+		location, raw_data.decode(encoding="latin_1")))
 main_menu.add_command(
 	label="Save page as...", underline=0, accelerator="Ctrl-S",
 	command=lambda: save_directory_as())
@@ -318,7 +319,7 @@ def handle_entry(entry):
 	elif entry[0] == "g":
 		showinfo(
 			parent=top,
-			title="Gophersnake says:",
+			title="Navigation issue",
 			message="GIF files not yet supported.")
 	elif entry[0] == "h":
 		if entry[2].startswith("URL:"):
@@ -327,8 +328,14 @@ def handle_entry(entry):
 		else:
 			showinfo(
 				parent=top,
-				title="Gophersnake problem",
+				title="Navigation issue",
 				message="Can't get web pages via Gopher.")
+	else:
+		error = "Can't handle " + entry_types[entry[0]] + "."
+		showinfo(
+			parent=top,
+			title="Navigation issue",
+			message=error)
 
 def handle_command(text):
 	text = text.strip()
@@ -346,8 +353,44 @@ def handle_url(url):
 			port = 70
 		else:
 			port = str(parsed.port)
-		entry = ("1", "", "", parsed.hostname, port)
+
+		if parsed.path == "" or parsed.path == "/":
+			selector = ""
+			sel_type = "1"
+		elif parsed.path[0] == "/":
+			selector = parsed.path[1:]
+			if selector[0] in entry_types:
+				sel_type = selector[0]
+				selector = selector[1:]
+			else:
+				showerror(
+					parent=top,
+					title="Address bar error",
+					message="Unknown selector type.")
+				return
+				
+		entry = (sel_type, "", selector, parsed.hostname, port)
 		handle_entry(entry)
+	elif parsed.scheme == "file":
+		if parsed.path != "":
+			handle_filename(parsed.path)
+		else:
+			showerror(
+				parent=top,
+				title="Address bar error",
+				message="No filename given.")
+	elif parsed.scheme == "":
+		showinfo(
+			parent=top,
+			title="Address bar issue",
+			message="Unknown address type.")
+	else:
+		error = "Can't handle " + parsed.scheme + " addresses."
+		showinfo(
+			parent=top,
+			title="Address bar issue",
+			message=error)
+		
 
 def selection2entry():
 	item = viewport.selection()[0]
@@ -447,10 +490,12 @@ def show_about():
 		message=about)
 
 def open_as_directory():
-	global location
 	fn = askopenfilename(parent=top, title="Open as directory")
-	if fn == "":
-		return
+	if fn != "":
+		handle_filename(fn)
+
+def handle_filename(fn):
+	global location
 	try:
 		del dir_entries[:]
 		for i in parse_file(fn):
