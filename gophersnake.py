@@ -33,6 +33,7 @@ if sys.version_info.major >= 3:
 	
 	from tkinter import *
 	from tkinter import ttk
+	from tkinter.simpledialog import askstring
 	from tkinter.messagebox import showinfo, showerror
 	from tkinter.filedialog import askopenfilename, asksaveasfilename
 else:
@@ -40,6 +41,7 @@ else:
 	
 	from Tkinter import *
 	import ttk
+	from tkSimpleDialog import askstring
 	from tkMessageBox import showinfo, showerror
 	from tkFileDialog import askopenfilename, asksaveasfilename
 
@@ -133,6 +135,13 @@ def str2entry(line):
 		return None
 	else:
 		return (line[0],) + tuple(line[1:].rstrip().split("\t"))
+
+def parse_bytes(data):
+	del dir_entries[:] #dir_entries.clear()
+	for i in data.decode(encoding="latin_1").split("\r\n"):
+		e = str2entry(i)
+		if e != None:
+			dir_entries.append(e)
 
 def parse_file(filename):
 	with open(filename, "r") as f:
@@ -285,21 +294,27 @@ def handle_entry(entry):
 	global location
 	if entry[0] == "0":
 		if load_with_status(entry[2], entry[3], int(entry[4])):
-			open_text_viewer(entry2url(entry), raw_data.decode())
+			open_text_viewer(
+				entry2url(entry),
+				raw_data.decode(encoding="latin_1"))
 	elif entry[0] == "1":
 		if load_with_status(entry[2], entry[3], int(entry[4])):
-			del dir_entries[:] #dir_entries.clear()
-			for i in raw_data.decode().split("\r\n"):
-				e = str2entry(i)
-				if e != None:
-					dir_entries.append(e)
+			parse_bytes(raw_data)
 			location = entry2url(entry)
 			refresh_display()
 	elif entry[0] == "7":
-		showinfo(
-			parent=top,
-			title="Gophersnake says:",
-			message="Search not yet implemented.")
+		title = "Gophersnake asks"
+		if entry[1] != "":
+			msg = entry[1] + ":"
+		else:
+			msg = "Search " + entry2url(entry) + " for:"
+		query = askstring(title, msg, parent=top)
+		if query != None:
+			selector = entry[2] + "\t" + query
+			if load_with_status(selector, entry[3], int(entry[4])):
+				parse_bytes(raw_data)
+				location = entry2url(entry)
+				refresh_display()
 	elif entry[0] == "g":
 		showinfo(
 			parent=top,
@@ -309,6 +324,11 @@ def handle_entry(entry):
 		if entry[2].startswith("URL:"):
 			statusbar["text"] = "Opening in browser..."
 			webbrowser.open_new_tab(entry[2][4:])
+		else:
+			showinfo(
+				parent=top,
+				title="Gophersnake problem",
+				message="Can't get web pages via Gopher.")
 
 def handle_command(text):
 	text = text.strip()
@@ -383,6 +403,7 @@ def refresh_display():
 	address.set(location)
 	viewport.selection_set(viewport.get_children()[0])
 	viewport.focus(viewport.get_children()[0])
+	viewport.focus_set()
 
 def open_text_viewer(url, text):
 	window = Toplevel(top)
@@ -403,6 +424,7 @@ def open_text_viewer(url, text):
 		window.clipboard_append(textview.get("sel.first", "sel.last"))
 	
 	textview.grid(row=0, column=0, sticky=(N, S, E, W))
+	textview.focus_set()
 
 	textscroll = ttk.Scrollbar(
 		window, orient=VERTICAL, command=textview.yview)
