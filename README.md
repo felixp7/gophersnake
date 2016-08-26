@@ -1,6 +1,6 @@
 # Gophersnake
 
-Gophersnake is a stand-alone Gopher client for modern desktops, written in Python and TkInter. As of 2016-08-25, it's still at an early stage, but it's coming along.
+Gophersnake is a stand-alone Gopher client for modern desktops, written in Python and TkInter. As of August 2016, it's still at an early stage, but it's coming along.
 
 ## Wait, what's Gopher?
 
@@ -34,15 +34,17 @@ Gophersnake is being developed on Python 3. For now it's still compatible with 2
 ## Known bugs
 
 - The loading progress isn't showing, so the program just seems to freeze.
-- Directory entries that cut off early aren't rendered.
+- For that matter, there's no way to interrupt downloads.
+- Directory entries with missing fields aren't rendered.
 
 ## To do
 
-- History
-- Bookmarks
-- Binary file downloads
-- GIF file display
-- Caching
+- [ ] History
+  - [ ] Back button
+- [ ] Bookmarks
+- [X] Binary file downloads
+- [ ] GIF file display
+- [ ] Caching
 
 ## Similar software
 
