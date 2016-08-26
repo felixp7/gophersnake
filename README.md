@@ -24,6 +24,7 @@ Gophersnake is being developed on Python 3. For now it's still compatible with 2
 
 - Single-file app, just download and run.
 - Modern, familiar GUI.
+- Compact GUI: opens in 800x600 by default, and fits in 640x480.
 - Useful home screen.
 - Works on any port.
 - Text files open in their own windows.
@@ -41,6 +42,7 @@ Gophersnake is being developed on Python 3. For now it's still compatible with 2
 - Bookmarks
 - Binary file downloads
 - GIF file display
+- Caching
 
 ## Similar software
 
