@@ -154,22 +154,22 @@ def write_to_file(filename, entries):
 			print("%s%s\t%s\t%s\t%s" % i, file=f)
 
 def fetch_data(selector, host, port):
-	global raw_data
+	#global raw_data
 	
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	sock.connect((host, port))
 	sock.sendall((selector + "\r\n").encode())
 	
-	raw_data = b""
+	#raw_data = b""
 	data = sock.recv(1024)
 	while data:
-		raw_data += data
-		yield True
+		#raw_data += data
+		yield data
 		data = sock.recv(1024)
 	
 	sock.shutdown(socket.SHUT_RDWR)
 	sock.close()
-	yield False
+	#yield False
 
 top = Tk()
 top.title("Gophersnake")
@@ -248,12 +248,13 @@ viewport.heading("type", anchor="e")
 viewport.tag_configure("0", foreground="blue", font="TkFixedFont")
 viewport.tag_configure("1", foreground="blue", font="TkFixedFont")
 viewport.tag_configure("3", foreground="red")
-viewport.tag_configure("5", font="TkFixedFont")
+viewport.tag_configure("5", foreground="blue", font="TkFixedFont")
 viewport.tag_configure("7", foreground="blue", font="TkFixedFont")
-viewport.tag_configure("9", font="TkFixedFont")
+viewport.tag_configure("9", foreground="blue", font="TkFixedFont")
 viewport.tag_configure("g", foreground="blue", font="TkFixedFont")
 viewport.tag_configure("h", foreground="blue", font="TkFixedFont")
 viewport.tag_configure("i", font="TkFixedFont")
+viewport.tag_configure("I", foreground="blue", font="TkFixedFont")
 
 scroll = ttk.Scrollbar(
 	main_pane, orient=VERTICAL, command=viewport.yview)
@@ -293,7 +294,9 @@ viewport.bind("<Double-1>", lambda e: handle_entry(selection2entry()))
 
 def handle_entry(entry):
 	global location
-	if entry[0] == "0":
+	if entry[0] == "i":
+		pass
+	elif entry[0] == "0":
 		if load_with_status(entry[2], entry[3], int(entry[4])):
 			open_text_viewer(
 				entry2url(entry),
@@ -317,19 +320,16 @@ def handle_entry(entry):
 				location = entry2url(entry)
 				refresh_display()
 	elif entry[0] == "g":
-		showinfo(
-			parent=top,
-			title="Navigation issue",
-			message="GIF files not yet supported.")
+		# TO DO: open GIF files in own window.
+		save_with_status(entry[2], entry[3], int(entry[4]))
 	elif entry[0] == "h":
 		if entry[2].startswith("URL:"):
 			statusbar["text"] = "Opening in browser..."
 			webbrowser.open_new_tab(entry[2][4:])
 		else:
-			showinfo(
-				parent=top,
-				title="Navigation issue",
-				message="Can't get web pages via Gopher.")
+			save_with_status(entry[2], entry[3], int(entry[4]))
+	elif entry[0] in ("5", "9", "I", "s"):
+		save_with_status(entry[2], entry[3], int(entry[4]))
 	else:
 		error = "Can't handle " + entry_types[entry[0]] + "."
 		showinfo(
@@ -405,10 +405,31 @@ def update_status():
 		statusbar["text"] = entry2url(entry)
 
 def load_with_status(selector, host, port):
+	global raw_data
+	raw_data = b""
 	try:
 		for i in fetch_data(selector, host, port):
+			raw_data += i
 			statusbar["text"] = str(
 				len(raw_data)) + " bytes loaded"
+		return True
+	except Exception as e:
+		showerror(
+			parent=top,
+			title="Error loading content",
+			message=str(e))
+		return False
+
+def save_with_status(selector, host, port):
+	fn = asksaveasfilename(parent=top, title="Save file as")
+	if fn == "":
+		return
+	try:
+		with open(fn, "wb") as f:
+			for i in fetch_data(selector, host, port):
+				f.write(i)
+				statusbar["text"] = str(
+					len(raw_data)) + " bytes saved"
 		return True
 	except Exception as e:
 		showerror(
@@ -454,7 +475,7 @@ def open_text_viewer(url, text):
 	
 	textview = Text(window, width=80, height=25, wrap="word")
 	textview.insert("1.0", text.replace("\r\n", "\n"))
-	textview.bind("<Control-a>", lambda e: select_all())
+	window.bind("<Control-a>", lambda e: select_all())
 	textview.bind("<Control-c>", lambda e: copy_to_clipboard())
 	#textview["state"] = "disabled"
 	
