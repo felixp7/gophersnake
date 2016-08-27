@@ -33,8 +33,7 @@ Gophersnake is being developed on Python 3. For now it's still compatible with 2
 
 ## Known bugs
 
-- The loading progress isn't showing, so the program just seems to freeze.
-- For that matter, there's no way to interrupt downloads.
+- There's no way to interrupt downloads.
 - Directory entries with missing fields aren't rendered.
 
 ## To do
