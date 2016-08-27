@@ -39,7 +39,7 @@ Gophersnake is being developed on Python 3. For now it's still compatible with 2
 ## To do
 
 - [ ] History
-  - [ ] Back button
+  - [X] Back button
 - [ ] Bookmarks
 - [X] Binary file downloads
 - [ ] GIF file display
