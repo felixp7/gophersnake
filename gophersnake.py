@@ -109,6 +109,7 @@ home_dir = [('i', 'Welcome to Gophersnake, a simple client for the Gopher protoc
 
 raw_data = b""
 location = ""
+history = []
 dir_entries = []
 
 def entry2url(e):
@@ -282,7 +283,8 @@ top.bind("<Control-q>", lambda e: top.destroy())
 
 all_buttons["Back"]["state"] = "disabled"
 #all_buttons["Forward"]["state"] = "disabled"
-all_buttons["Home"]["command"] = lambda: go_home()
+all_buttons["Back"]["command"] = lambda: go_back()
+all_buttons["Home"]["command"] = lambda: handle_command("home")
 
 address_bar.bind("<Return>", lambda e: handle_command(address.get()))
 
@@ -294,7 +296,6 @@ viewport.bind("<Return>", lambda e: handle_entry(selection2entry()))
 viewport.bind("<Double-1>", lambda e: handle_entry(selection2entry()))
 
 def handle_entry(entry):
-	global location
 	if entry[0] == "i":
 		pass
 	elif entry[0] == "0":
@@ -303,23 +304,14 @@ def handle_entry(entry):
 				entry2url(entry),
 				raw_data.decode(encoding="latin_1"))
 	elif entry[0] == "1":
-		if load_with_status(entry[2], entry[3], int(entry[4])):
-			parse_bytes(raw_data)
-			location = entry2url(entry)
-			refresh_display()
+		load_as_directory(entry)
 	elif entry[0] == "7":
-		title = "Gophersnake asks"
 		if entry[1] != "":
 			msg = entry[1] + ":"
 		else:
 			msg = "Search " + entry2url(entry) + " for:"
-		query = askstring(title, msg, parent=top)
-		if query != None:
-			selector = entry[2] + "\t" + query
-			if load_with_status(selector, entry[3], int(entry[4])):
-				parse_bytes(raw_data)
-				location = entry2url(entry)
-				refresh_display()
+		query = askstring("Gophersnake asks", msg, parent=top)
+		load_as_directory(entry, query)
 	elif entry[0] == "g":
 		# TO DO: open GIF files in own window.
 		save_with_status(entry[2], entry[3], int(entry[4]))
@@ -344,6 +336,9 @@ def handle_entry(entry):
 def handle_command(text):
 	text = text.strip()
 	if text == "home":
+		if location != "home":
+			history.append(location)
+			all_buttons["Back"]["state"] = "enabled"
 		go_home()
 	else:
 		handle_url(text)
@@ -394,7 +389,6 @@ def handle_url(url):
 			parent=top,
 			title="Address bar issue",
 			message=error)
-		
 
 def selection2entry():
 	item = viewport.selection()[0]
@@ -407,6 +401,34 @@ def update_status():
 		statusbar["text"] = ""
 	else:
 		statusbar["text"] = entry2url(entry)
+
+def load_as_directory(entry, query=None):
+	global location
+	if query != None:
+		selector = entry[2] + "\t" + query
+	else:
+		selector = entry[2]
+	if load_raw_data(selector, entry[3], int(entry[4])):
+		parse_bytes(raw_data)
+		history.append(location)
+		location = entry2url(entry)
+		refresh_display()
+		all_buttons["Back"]["state"] = "enabled"
+
+def load_raw_data(selector, host, port):
+	global raw_data
+	data = b""
+	try:
+		for i in fetch_data(selector, host, port):
+			data += i
+		raw_data = data
+		return True
+	except Exception as e:
+		showerror(
+			parent=top,
+			title="Error loading content",
+			message=str(e))
+		return False
 
 def load_with_status(selector, host, port):
 	global raw_data
@@ -465,6 +487,13 @@ def show_entries(entries):
 			t = "[???]"
 		viewport.insert(
 			"", "end", values=(t, e[1]), tags=(e[0],))
+
+def go_back():
+	if len(history) > 0:
+		handle_command(history.pop())
+		history.pop() # 'cause the entry will promptly add itself back.
+		if len(history) < 1:
+			all_buttons["Back"]["state"] = "disabled"
 
 def go_home():
 	global location, raw_data
@@ -536,6 +565,7 @@ def handle_filename(fn):
 		del dir_entries[:]
 		for i in parse_file(fn):
 			dir_entries.append(i)
+		history.append(location)
 		location = "file://" + fn.replace("\\", "/")
 		refresh_display()
 	except Exception as e:
