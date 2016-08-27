@@ -26,6 +26,7 @@ from __future__ import print_function
 
 import webbrowser
 import socket
+from threading import Thread
 import sys
 
 if sys.version_info.major >= 3:
@@ -45,7 +46,7 @@ else:
 	from tkMessageBox import showinfo, showerror
 	from tkFileDialog import askopenfilename, asksaveasfilename
 
-about = """Gophersnake version 2016-08-25, running on Python %d.%d.%d
+about = """Gophersnake version 2016-08-27, running on Python %d.%d.%d
 Created by Felix Pleşoianu and offered under the MIT License.
 See the source code for full text.""" % (
 	sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
@@ -329,7 +330,10 @@ def handle_entry(entry):
 		else:
 			save_with_status(entry[2], entry[3], int(entry[4]))
 	elif entry[0] in ("5", "9", "I", "s"):
-		save_with_status(entry[2], entry[3], int(entry[4]))
+		def save_fn():
+			save_with_status(entry[2], entry[3], int(entry[4]))
+		save_op = Thread(None, save_fn)
+		save_op.start()
 	else:
 		error = "Can't handle " + entry_types[entry[0]] + "."
 		showinfo(
@@ -424,12 +428,21 @@ def save_with_status(selector, host, port):
 	fn = asksaveasfilename(parent=top, title="Save file as")
 	if fn == "":
 		return
+	
+	prog_win = Toplevel(top, padx=8, pady=8)
+	prog_win.title = "Downloading..."
+	prog_win.transient(top)
+	prog_win.resizable(FALSE, FALSE)
+	
+	prog_bar = ttk.Progressbar(
+		prog_win, orient=HORIZONTAL, length=300, mode="indeterminate")
+	prog_bar.pack()
+	
 	try:
 		with open(fn, "wb") as f:
 			for i in fetch_data(selector, host, port):
 				f.write(i)
-				statusbar["text"] = str(
-					len(raw_data)) + " bytes saved"
+				prog_bar.step()
 		return True
 	except Exception as e:
 		showerror(
@@ -437,6 +450,8 @@ def save_with_status(selector, host, port):
 			title="Error loading content",
 			message=str(e))
 		return False
+	finally:
+		prog_win.destroy()
 
 def show_entries(entries):
 	viewport.delete(*viewport.get_children())
