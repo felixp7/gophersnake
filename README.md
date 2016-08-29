@@ -16,7 +16,7 @@ Because the Internet is turning into a web-based monoculture, and every monocult
 
 Just download `gophersnake.py`, it's a self-contained script. To run it, you need Python and Tkinter. Both should be installed by default on Linux and Mac; for Windows, just download an official installer from www.python.org.
 
-Click on links to see where they lead; double-click to navigate. The up/down/enter keys work as well.
+Click on links to see where they lead; double-click to navigate. The up/down/enter keys work as well. In the text viewer, Ctrl-A selects the whole text, and Ctrl-C copies it to the clipboard.
 
 Gophersnake is being developed on Python 3. For now it's still compatible with 2.7, but that could change at any time.
 
@@ -42,7 +42,7 @@ Gophersnake is being developed on Python 3. For now it's still compatible with 2
   - [X] Back button
 - [ ] Bookmarks
 - [X] Binary file downloads
-- [ ] GIF file display
+- [ ] GIF file display (help needed)
 - [ ] Caching
 
 ## Similar software
