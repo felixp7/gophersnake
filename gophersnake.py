@@ -46,7 +46,7 @@ else:
 	from tkMessageBox import showinfo, showerror
 	from tkFileDialog import askopenfilename, asksaveasfilename
 
-about = """Gophersnake version 2016-08-27, running on Python %d.%d.%d
+about = """Gophersnake version 2016-08-29, running on Python %d.%d.%d
 Created by Felix Pleşoianu and offered under the MIT License.
 See the source code for full text.""" % (
 	sys.version_info.major, sys.version_info.minor, sys.version_info.micro)
@@ -54,7 +54,7 @@ See the source code for full text.""" % (
 entry_types = {"0": "[TXT]", "1": "[DIR]", "2": "[CSO]", "3": "[ERR]",
 	"4": "[HEX]", "5": "[ARC]", "6": "[ENC]", "7": "[QRY]",
 	"8": "[TLN]", "9": "[BIN]", "g": "[GIF]", "h": "[HTM]",
-	"i": "", "I": "[IMG]", "s": "[SND]", "T": "[TN3]"}
+	"i": "", "I": "[IMG]", "s": "[SND]", "M": "MIME?", "d": "[PDF]"}
 
 icon_data = {}
 icon_data["Back"] = """
@@ -257,6 +257,8 @@ viewport.tag_configure("g", foreground="blue", font="TkFixedFont")
 viewport.tag_configure("h", foreground="blue", font="TkFixedFont")
 viewport.tag_configure("i", font="TkFixedFont")
 viewport.tag_configure("I", foreground="blue", font="TkFixedFont")
+viewport.tag_configure("M", font="TkFixedFont")
+viewport.tag_configure("d", foreground="blue", font="TkFixedFont")
 
 scroll = ttk.Scrollbar(
 	main_pane, orient=VERTICAL, command=viewport.yview)
@@ -299,10 +301,10 @@ def handle_entry(entry):
 	if entry[0] == "i":
 		pass
 	elif entry[0] == "0":
-		if load_with_status(entry[2], entry[3], int(entry[4])):
-			open_text_viewer(
-				entry2url(entry),
-				raw_data.decode(encoding="latin_1"))
+		def load_fn():
+			load_with_status(entry, open_text_viewer)
+		load_op = Thread(None, load_fn)
+		load_op.start()
 	elif entry[0] == "1":
 		load_as_directory(entry)
 	elif entry[0] == "7":
@@ -321,7 +323,7 @@ def handle_entry(entry):
 			webbrowser.open_new_tab(entry[2][4:])
 		else:
 			save_with_status(entry[2], entry[3], int(entry[4]))
-	elif entry[0] in ("5", "9", "I", "s"):
+	elif entry[0] in ("5", "9", "I", "s", "d"):
 		def save_fn():
 			save_with_status(entry[2], entry[3], int(entry[4]))
 		save_op = Thread(None, save_fn)
@@ -430,21 +432,29 @@ def load_raw_data(selector, host, port):
 			message=str(e))
 		return False
 
-def load_with_status(selector, host, port):
-	global raw_data
-	raw_data = b""
+def load_with_status(entry, callback):
+	prog_win = Toplevel(top, padx=8, pady=8)
+	prog_win.title = "Loading..."
+	prog_win.transient(top)
+	prog_win.resizable(FALSE, FALSE)
+	
+	prog_bar = ttk.Progressbar(
+		prog_win, orient=HORIZONTAL, length=300, mode="indeterminate")
+	prog_bar.pack()
+
+	data = b""
 	try:
-		for i in fetch_data(selector, host, port):
-			raw_data += i
-			statusbar["text"] = str(
-				len(raw_data)) + " bytes loaded"
-		return True
+		for i in fetch_data(entry[2], entry[3], int(entry[4])):
+			data += i
+			prog_bar.step()
+		callback(entry2url(entry), data)
 	except Exception as e:
 		showerror(
 			parent=top,
 			title="Error loading content",
 			message=str(e))
-		return False
+	finally:
+		prog_win.destroy()
 
 def save_with_status(selector, host, port):
 	fn = asksaveasfilename(parent=top, title="Save file as")
@@ -513,7 +523,9 @@ def refresh_display():
 	viewport.focus(viewport.get_children()[0])
 	viewport.focus_set()
 
-def open_text_viewer(url, text):
+def open_text_viewer(url, data):
+	text = data.decode(encoding="latin_1")
+	
 	window = Toplevel(top)
 	window.title("Gophersnake text viewer")
 	
