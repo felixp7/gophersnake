@@ -265,7 +265,7 @@ scroll = ttk.Scrollbar(
 viewport["yscrollcommand"] = scroll.set
 scroll.grid(row=0, column=1, sticky=(N, S))
 
-statusbar = Label(main_pane)
+statusbar = ttk.Label(main_pane)
 statusbar.grid(row=1, column=0, sticky=(E, W))
 
 grip = ttk.Sizegrip(main_pane)
@@ -316,7 +316,11 @@ def handle_entry(entry):
 		load_as_directory(entry, query)
 	elif entry[0] == "g":
 		# TO DO: open GIF files in own window.
-		save_with_status(entry[2], entry[3], int(entry[4]))
+		def save_fn():
+			#load_with_status(entry, open_image_viewer)
+			save_with_status(entry[2], entry[3], int(entry[4]))
+		save_op = Thread(None, save_fn)
+		save_op.start()
 	elif entry[0] == "h":
 		if entry[2].startswith("URL:"):
 			statusbar["text"] = "Opening in browser..."
@@ -545,20 +549,34 @@ def open_text_viewer(url, data):
 	
 	textview.grid(row=0, column=0, sticky=(N, S, E, W))
 	textview.focus_set()
-
+	
 	textscroll = ttk.Scrollbar(
 		window, orient=VERTICAL, command=textview.yview)
 	textview["yscrollcommand"] = textscroll.set
 	textscroll.grid(row=0, column=1, sticky=(N, S))
-
-	textstatus = Label(window, text=url)
+	
+	textstatus = ttk.Label(window, text=url)
 	textstatus.grid(row=1, column=0, sticky=(E, W))
-
+	
 	textgrip = ttk.Sizegrip(window)
 	textgrip.grid(row=1, column=1, sticky=(S, E))
-
+	
 	window.rowconfigure(0, weight=1)
 	window.columnconfigure(0, weight=1)
+
+# Broken as of 2016-08-29
+def open_image_viewer(url, bdata):
+	global img
+	img = PhotoImage(data=bdata)
+	
+	window = Toplevel(top)
+	window.title("Gophersnake image viewer")
+	
+	imgview = ttk.Label(window, image=img)
+	imgview.pack(side=TOP, fill="both", expand=TRUE)
+
+	imgstatus = ttk.Label(window, text=url)
+	imgstatus.pack(side=BOTTOM, fill="x", expand=TRUE)
 
 def show_about():
 	showinfo(
