@@ -43,7 +43,7 @@ Gophersnake is being developed on Python 3. For now it's still compatible with 2
 - [ ] Bookmarks
 - [X] Binary file downloads
 - [ ] GIF file display (help needed)
-- [ ] Caching
+- [X] Caching
 
 ## Similar software
 
