@@ -111,6 +111,7 @@ raw_data = b""
 location = ""
 history = []
 dir_entries = []
+cache = {}
 
 def entry2url(e):
 	#type label selector host port
@@ -275,8 +276,8 @@ main_pane.rowconfigure(0, weight=1)
 main_pane.columnconfigure(0, weight=1)
 
 top.bind("<Control-l>", lambda e: address_bar.focus())
-top.bind("<Control-r>", lambda e: handle_command(location))
-top.bind("<F5>", lambda e: handle_command(location))
+top.bind("<Control-r>", lambda e: reload_command(location))
+top.bind("<F5>", lambda e: reload_command(location))
 top.bind("<Control-o>", lambda e: open_as_directory())
 top.bind("<Control-u>",
 	lambda e: open_text_viewer(location, raw_data.decode()))
@@ -290,7 +291,7 @@ all_buttons["Home"]["command"] = lambda: handle_command("home")
 
 address_bar.bind("<Return>", lambda e: handle_command(address.get()))
 
-all_buttons["Reload"]["command"] = lambda: handle_command(location)
+all_buttons["Reload"]["command"] = lambda: reload_command(location)
 all_buttons["Bookmark"]["state"] = "disabled"
 
 viewport.bind("<<TreeviewSelect>>", lambda e: update_status())
@@ -338,6 +339,12 @@ def handle_entry(entry):
 			parent=top,
 			title="Navigation issue",
 			message=error)
+
+def reload_command(text):
+	text = text.strip()
+	if text in cache:
+		del cache[text]
+	handle_command(text)
 
 def handle_command(text):
 	text = text.strip()
@@ -410,16 +417,34 @@ def update_status():
 
 def load_as_directory(entry, query=None):
 	global location
+	
 	if query != None:
 		selector = entry[2] + "\t" + query
 	else:
 		selector = entry[2]
-	if load_raw_data(selector, entry[3], int(entry[4])):
+	
+	url = entry2url(entry)
+	
+	# Can't use collections.OrderedDict here because it's Python 3.x only.
+	# Hopefully the RAM of a modern PC can hold the cache for one session.
+	if url in cache:
+		data = cache[url]
+		del dir_entries[:]
+		for i in data:
+			dir_entries.append(i)
+	elif load_raw_data(selector, entry[3], int(entry[4])):
 		parse_bytes(raw_data)
-		history.append(location)
-		location = entry2url(entry)
-		refresh_display()
-		all_buttons["Back"]["state"] = "enabled"
+		if query == None:
+			cache[url] = []
+			for i in dir_entries:
+				cache[url].append(i)
+	else:
+		return
+
+	history.append(location)
+	location = url
+	refresh_display()
+	all_buttons["Back"]["state"] = "enabled"
 
 def load_raw_data(selector, host, port):
 	global raw_data
