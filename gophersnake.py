@@ -119,22 +119,22 @@ def entry2url(e):
 		return e[2][4:]
 	elif len(e) < 5:
 		return str(e)
-	
+
 	if e[4] == "70":
 		port = ""
 	else:
 		port = ":" + str(e[4])
-	
-        if (is_it_ipv6(e[3], port, True)==True):
-                if e[2] == "":
-                        return "gopher://%s%s" % (("["+e[3]+"]"), port)
-                else:
-                        return "gopher://%s%s/%1s%s" % (("["+e[3]+"]"), port, e[0], e[2])
-        else:
-        	if e[2] == "":
-        		return "gopher://%s%s" % (e[3], port)
-        	else:
-	        	return "gopher://%s%s/%1s%s" % (e[3], port, e[0], e[2])
+
+	if is_it_ipv6(e[3], port, True)==True:
+		if (e[2] == ""):
+			return "gopher://%s%s" % (("["+e[3]+"]"), port)
+		else:
+			return "gopher://%s%s/%1s%s" % (("["+e[3]+"]"), port, e[0], e[2])
+	else:
+		if e[2] == "":
+			return "gopher://%s%s" % (e[3], port)
+		else:
+			return "gopher://%s%s/%1s%s" % (e[3], port, e[0], e[2])
 
 def str2entry(line):
 	line = line.strip()
