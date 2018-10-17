@@ -30,6 +30,7 @@ Gophersnake is being developed on Python 3. For now it's still compatible with 2
 - Text files open in their own windows.
 - Can save directories to a file and load them from disk again (useful for testing).
 - "View source" function.
+- Compatible with IPv6.
 
 ## Known bugs
 
