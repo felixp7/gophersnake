@@ -1,8 +1,9 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # coding=utf-8
 #
-# Gophersnake -- stand-alone Gopher client for modern desktops
-# Copyright 2016 Felix Pleșoianu <http://felix.plesoianu.ro/>
+# Gophersnake: stand-alone Gopher client for modern desktops
+# Copyright 2016-2018 Felix Pleșoianu <https://felix.plesoianu.ro/>
+# IPv6 support by madscientistninja <https://github.com/madscientistninja>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -125,11 +126,12 @@ def entry2url(e):
 	else:
 		port = ":" + str(e[4])
 
-	if is_it_ipv6(e[3], port, True)==True:
+	if is_it_ipv6(e[3], port, True):
 		if (e[2] == ""):
 			return "gopher://%s%s" % (("["+e[3]+"]"), port)
 		else:
-			return "gopher://%s%s/%1s%s" % (("["+e[3]+"]"), port, e[0], e[2])
+			return "gopher://%s%s/%1s%s" % (
+				("["+e[3]+"]"), port, e[0], e[2])
 	else:
 		if e[2] == "":
 			return "gopher://%s%s" % (e[3], port)
@@ -163,22 +165,24 @@ def write_to_file(filename, entries):
 			print("%s%s\t%s\t%s\t%s" % i, file=f)
 
 def is_it_ipv6(host, port, nodnslookup):
-        if (nodnslookup==True):
-            try:
-                socket.inet_pton(socket.AF_INET6, str(host))
-            except socket.error:
-                return False
-            return True
-        else:
-            try:
-                socket.inet_pton(socket.AF_INET6, socket.getaddrinfo(host, port)[0][4][0])
-            except socket.error:
-                return False
-            return True
+	if nodnslookup:
+		try:
+			socket.inet_pton(socket.AF_INET6, str(host))
+		except socket.error:
+			return False
+		return True
+	else:
+		try:
+			socket.inet_pton(
+				socket.AF_INET6,
+				socket.getaddrinfo(host, port)[0][4][0])
+		except socket.error:
+			return False
+		return True
 
 def fetch_data(selector, host, port):
 	#global raw_data
-	if is_it_ipv6(host, port, False)==True:
+	if is_it_ipv6(host, port, False):
 	    sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
 	    sock.connect((host, port))
 	    sock.sendall((selector + "\r\n").encode())
@@ -227,7 +231,7 @@ def add_buttons(buttons):
 add_buttons(buttons1)
 
 address = StringVar()
-address_bar = Entry(toolbar, textvariable=address)
+address_bar = ttk.Entry(toolbar, textvariable=address)
 address_bar.pack(
 	side=LEFT, fill="x", padx=4, ipadx=8, ipady=8, expand=TRUE)
 
