@@ -119,16 +119,22 @@ def entry2url(e):
 		return e[2][4:]
 	elif len(e) < 5:
 		return str(e)
-	
+
 	if e[4] == "70":
 		port = ""
 	else:
 		port = ":" + str(e[4])
-	
-	if e[2] == "":
-		return "gopher://%s%s" % (e[3], port)
+
+	if is_it_ipv6(e[3], port, True)==True:
+		if (e[2] == ""):
+			return "gopher://%s%s" % (("["+e[3]+"]"), port)
+		else:
+			return "gopher://%s%s/%1s%s" % (("["+e[3]+"]"), port, e[0], e[2])
 	else:
-		return "gopher://%s%s/%1s%s" % (e[3], port, e[0], e[2])
+		if e[2] == "":
+			return "gopher://%s%s" % (e[3], port)
+		else:
+			return "gopher://%s%s/%1s%s" % (e[3], port, e[0], e[2])
 
 def str2entry(line):
 	line = line.strip()
@@ -156,13 +162,30 @@ def write_to_file(filename, entries):
 		for i in entries:
 			print("%s%s\t%s\t%s\t%s" % i, file=f)
 
+def is_it_ipv6(host, port, nodnslookup):
+        if (nodnslookup==True):
+            try:
+                socket.inet_pton(socket.AF_INET6, str(host))
+            except socket.error:
+                return False
+            return True
+        else:
+            try:
+                socket.inet_pton(socket.AF_INET6, socket.getaddrinfo(host, port)[0][4][0])
+            except socket.error:
+                return False
+            return True
+
 def fetch_data(selector, host, port):
 	#global raw_data
-	
-	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	sock.connect((host, port))
-	sock.sendall((selector + "\r\n").encode())
-	
+	if is_it_ipv6(host, port, False)==True:
+	    sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+	    sock.connect((host, port))
+	    sock.sendall((selector + "\r\n").encode())
+	else:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.connect((host, port))
+            sock.sendall((selector + "\r\n").encode())
 	#raw_data = b""
 	data = sock.recv(1024)
 	while data:
