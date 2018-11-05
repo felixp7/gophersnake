@@ -117,6 +117,7 @@ dir_entries = []
 cache = {}
 
 def entry2url(e):
+	assert len(e) >= 5
 	#type label selector host port
 	if e[0] == "h" and e[2].startswith("URL:"):
 		return e[2][4:]
@@ -328,6 +329,7 @@ viewport.bind("<Return>", lambda e: handle_entry(selection2entry()))
 viewport.bind("<Double-1>", lambda e: handle_entry(selection2entry()))
 
 def handle_entry(entry):
+	assert len(entry) > 0
 	if entry[0] == "i":
 		pass
 	elif entry[0] == "0":
@@ -439,6 +441,7 @@ def selection2entry():
 def update_status():
 	item = viewport.selection()[0]
 	entry = dir_entries[viewport.index(item)]
+	assert len(entry) > 0
 	if entry[0] == "i":
 		statusbar["text"] = ""
 	else:
@@ -549,12 +552,16 @@ def show_entries(entries):
 		e = entries[i]
 		if e == None:
 			continue
-		elif e[0] in entry_types:
+		elif len(e) > 0 and e[0] in entry_types:
 			t = entry_types[e[0]]
 		else:
 			t = "[???]"
-		viewport.insert(
-			"", "end", values=(t, e[1]), tags=(e[0],))
+		if len(e) > 1:
+			viewport.insert(
+				"", "end", values=(t, e[1]), tags=(e[0],))
+		else:
+			viewport.insert(
+				"", "end", values=(t, ""), tags=(e[0],))
 
 def go_back():
 	if len(history) > 0:
@@ -577,8 +584,15 @@ def go_home():
 def refresh_display():
 	show_entries(dir_entries)
 	address.set(location)
-	viewport.selection_set(viewport.get_children()[0])
-	viewport.focus(viewport.get_children()[0])
+	children = viewport.get_children()
+	if len(children) > 0:
+		viewport.selection_set(children[0])
+		viewport.focus(children[0])
+	else:
+		showinfo(
+			parent=top,
+			title="Content issue",
+			message="Directory is empty.")
 	viewport.focus_set()
 
 def open_text_viewer(url, data):

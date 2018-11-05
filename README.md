@@ -27,7 +27,7 @@ Gophersnake is being developed on Python 3. For now it's still compatible with 2
 - Compact GUI: opens in 800x600 by default, and fits in 640x480.
 - Useful home screen.
 - Works on any port.
-- Text files open in their own windows.
+- Text and GIF files open in their own windows.
 - Can save directories to a file and load them from disk again (useful for testing).
 - "View source" function.
 - Compatible with IPv6.
@@ -35,7 +35,7 @@ Gophersnake is being developed on Python 3. For now it's still compatible with 2
 ## Known bugs
 
 - There's no way to interrupt downloads.
-- Directory entries with missing fields aren't rendered.
+- ~~Directory entries with missing fields aren't rendered.~~
 - GIF files may not show when running in older versions of Python 3.
 
 ## To do
