@@ -4,6 +4,7 @@
 # Gophersnake: stand-alone Gopher client for modern desktops
 # Copyright 2016-2018 Felix Pleșoianu <https://felix.plesoianu.ro/>
 # IPv6 support by madscientistninja <https://github.com/madscientistninja>
+# GIF file display by Brian Evans <http://brianmevans.com/>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal

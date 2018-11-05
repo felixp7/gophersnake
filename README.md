@@ -1,6 +1,6 @@
 # Gophersnake
 
-Gophersnake is a stand-alone Gopher client for modern desktops, written in Python and TkInter. As of August 2016, it's still at an early stage, but it's coming along.
+Gophersnake is a stand-alone Gopher client for modern desktops, written in Python and TkInter. As of November 2018, development has mostly stalled at an early stage, apart from contributed enhancements.
 
 ## Wait, what's Gopher?
 
@@ -14,7 +14,7 @@ Because the Internet is turning into a web-based monoculture, and every monocult
 
 ## Install and run
 
-Just download `gophersnake.py`, it's a self-contained script. To run it, you need Python and Tkinter. Both should be installed by default on Linux and Mac; for Windows, just download an official installer from www.python.org.
+Just download `gophersnake.py`, it's a self-contained script. To run it, you need Python and Tkinter. Both should be installed by default on Linux and Mac; for Windows, just download an official installer from python.org.
 
 Click on links to see where they lead; double-click to navigate. The up/down/enter keys work as well. In the text viewer, Ctrl-A selects the whole text, and Ctrl-C copies it to the clipboard.
 
@@ -36,6 +36,7 @@ Gophersnake is being developed on Python 3. For now it's still compatible with 2
 
 - There's no way to interrupt downloads.
 - Directory entries with missing fields aren't rendered.
+- GIF files may not show when running in older versions of Python 3.
 
 ## To do
 
@@ -43,9 +44,10 @@ Gophersnake is being developed on Python 3. For now it's still compatible with 2
   - [X] Back button
 - [ ] Bookmarks
 - [X] Binary file downloads
-- [ ] GIF file display (help needed)
+- [X] GIF file display
 - [X] Caching
 
 ## Similar software
 
-https://github.com/avysk/suck-o-rama
+- [Suck-O-Rama](https://github.com/avysk/suck-o-rama), a minimal client.
+- [Burrow](https://github.com/sloumdrone/burrow): a more advanced client.
