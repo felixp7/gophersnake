@@ -29,6 +29,7 @@ import webbrowser
 import socket
 from threading import Thread
 import sys
+from io import BytesIO
 
 if sys.version_info.major >= 3:
 	from urllib.parse import urlparse
@@ -345,8 +346,8 @@ def handle_entry(entry):
 	elif entry[0] == "g":
 		# TO DO: open GIF files in own window.
 		def save_fn():
-			#load_with_status(entry, open_image_viewer)
-			save_with_status(entry[2], entry[3], int(entry[4]))
+			load_with_status(entry, open_image_viewer)
+			#save_with_status(entry[2], entry[3], int(entry[4]))
 		save_op = Thread(None, save_fn)
 		save_op.start()
 	elif entry[0] == "h":
@@ -619,7 +620,8 @@ def open_text_viewer(url, data):
 # Broken as of 2016-08-29
 def open_image_viewer(url, bdata):
 	global img
-	img = PhotoImage(data=bdata)
+	stream = BytesIO(bdata)
+	img = PhotoImage(data=stream.read())
 	
 	window = Toplevel(top)
 	window.title("Gophersnake image viewer")
